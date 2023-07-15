@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-//@CrossOrigin(origins = "https://amazing-kashata-3786cd.netlify.app")
+@CrossOrigin(origins = "https://luminous-druid-9d0274.netlify.app")
 //@CrossOrigin(origins = "http://localhost:3000")
 public class TaskController {
 
