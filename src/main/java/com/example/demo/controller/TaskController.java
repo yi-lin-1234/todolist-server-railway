@@ -6,10 +6,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
-@CrossOrigin(origins = "https://amazing-kashata-3786cd.netlify.app")
-@RequestMapping(path = "api/v1/task")
+//@CrossOrigin(origins = "https://amazing-kashata-3786cd.netlify.app")
+//@CrossOrigin(origins = "http://localhost:3000")
 public class TaskController {
 
     private final TaskService taskService;
@@ -19,70 +20,61 @@ public class TaskController {
 
     //READ(GET)
 
-    @GetMapping(path = "all")
+    @GetMapping(path = "all-tasks")
     public List<Task> getAll() {
         return taskService.getAll();
     }
 
-    @GetMapping(path = "id/{id}")
-    public Task getById(@PathVariable("id") Long id) {
+    @GetMapping(path = "task/{id}")
+    public Task getById(@PathVariable("id") UUID id) {
         return taskService.getById(id);
     }
 
-    @GetMapping(path = "unfinished")
+    @GetMapping(path = "tasks/unfinished")
     public List<Task> getUnfinishedTasks() {
         return taskService.getUnfinishedTasks();
     }
 
-    @GetMapping(path = "finished")
+    @GetMapping(path = "tasks/finished")
     public List<Task> getFinishedTasks() {
         return taskService.getFinishedTasks();
     }
 
-    @GetMapping(path = "sort_by_id_ascending")
-    public List<Task> sort_by_id_ascending() {
-        return taskService.sort_by_id_ascending();
-    }
-    @GetMapping(path = "sort_by_id_descending")
-    public List<Task> sort_by_id_descending() {
-        return taskService.sort_by_id_descending();
-    }
-
-    @GetMapping(path = "sort_by_priority_ascending")
+    @GetMapping(path = "sort-by-priority-ascending")
     public List<Task> sort_by_priority_ascending() {
         return taskService.sort_by_priority_ascending();
     }
-    @GetMapping(path = "sort_by_priority_descending")
+    @GetMapping(path = "sort-by-priority-descending")
     public List<Task> sort_by_priority_descending() {
         return taskService.sort_by_priority_descending();
     }
 
-    @GetMapping(path = "sort_by_difficulty_ascending")
+    @GetMapping(path = "sort-by-difficulty-ascending")
     public List<Task> sort_by_difficulty_ascending() {
         return taskService.sort_by_difficulty_ascending();
     }
 
-    @GetMapping(path = "sort_by_difficulty_descending")
+    @GetMapping(path = "sort-by-difficulty-descending")
     public List<Task> sort_by_difficulty_descending() {
         return taskService.sort_by_difficulty_descending();
     }
 
-    @GetMapping(path = "sort_by_created_ascending")
+    @GetMapping(path = "sort-by-created-ascending")
     public List<Task> sort_by_created_ascending() {
         return taskService.sort_by_created_ascending();
     }
 
-    @GetMapping(path = "sort_by_created_descending")
+    @GetMapping(path = "sort-by-created-descending")
     public List<Task> sort_by_created_descending() {
         return taskService.sort_by_created_descending();
     }
 
-    @GetMapping(path = "sort_by_estimate_ascending")
+    @GetMapping(path = "sort-by-estimate-ascending")
     public List<Task> sort_by_estimate_ascending() {
         return taskService.sort_by_estimate_ascending();
     }
 
-    @GetMapping(path = "sort_by_estimate_descending")
+    @GetMapping(path = "sort-by-estimate-descending")
     public List<Task> sort_by_estimate_descending() {
         return taskService.sort_by_estimate_descending();
     }
@@ -91,15 +83,15 @@ public class TaskController {
 
     //CREATE(POST)
 
-    @PostMapping
+    @PostMapping(path = "new")
     public void createTask(@RequestBody Task task) {
         taskService.createTask(task);
     }
 
     //DELETE(DELETE)
 
-    @DeleteMapping(path = "{id}")
-    public void deleteTask(@PathVariable("id") Long id) {
+    @DeleteMapping(path = "task/{id}")
+    public void deleteTask(@PathVariable("id") UUID id) {
         taskService.deleteTask(id);
     }
 
@@ -108,15 +100,15 @@ public class TaskController {
 
     //UPDATE(PUT)
 
-    @PutMapping(path = "update_to_finished/{id}")
-    public void updateToFinished( @PathVariable("id") Long id) {
+    @PutMapping(path = "update-status-finished/{id}")
+    public void updateToFinished( @PathVariable("id") UUID id) {
 
         taskService.updateToFinished(id);
     }
 
-    @PutMapping(path = "update_task_content/{id}")
+    @PutMapping(path = "task/{id}")
     public void updateTask(
-            @PathVariable("id") Long id,
+            @PathVariable("id") UUID id,
             @RequestBody Task task
     ) {
 

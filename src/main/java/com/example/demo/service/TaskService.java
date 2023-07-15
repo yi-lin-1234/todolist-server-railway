@@ -12,11 +12,13 @@ import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 @Service
 public class TaskService {
 
     private final TaskRepository taskRepository;
+
     @Autowired
     public TaskService(TaskRepository taskRepository) {
         this.taskRepository = taskRepository;
@@ -24,65 +26,52 @@ public class TaskService {
 
     //GET
     public List<Task> getAll() {
-        Sort sort = Sort.by(Sort.Direction.ASC, "id");
-        return taskRepository.findAll(sort);   // findAll() return a list
+        return taskRepository.findAll();
     }
 
-    public List getUnfinishedTasks() {
-        return taskRepository.getUnfinishedTasks();
+    public List<Task> getUnfinishedTasks() {
+        return taskRepository.findByStatus("unfinished");
     }
 
-    public List getFinishedTasks() {
-        return taskRepository.getFinishedTasks();
+    public List<Task> getFinishedTasks() {
+        return taskRepository.findByStatusOrderByCreatedDesc("finished");
     }
 
-    public List sort_by_id_ascending() {
-        return taskRepository.sort_by_id_ascending();
-    }
-
-    public List sort_by_id_descending() {
-        return taskRepository.sort_by_id_descending();
-    }
-
-
-
-    public Task getById(Long id) {
+    public Task getById(UUID id) {
         return taskRepository.findById(id).orElseThrow(() -> new IllegalStateException("task with id: " + id + " does not exists."));
     }
 
-    public List sort_by_priority_ascending() {
+    public List<Task> sort_by_priority_ascending() {
         return taskRepository.sort_by_priority_ascending();
     }
 
-    public List sort_by_priority_descending() {
+    public List<Task> sort_by_priority_descending() {
         return taskRepository.sort_by_priority_descending();
     }
 
-    public List sort_by_difficulty_ascending() {
+    public List<Task> sort_by_difficulty_ascending() {
         return taskRepository.sort_by_difficulty_ascending();
     }
 
-    public List sort_by_difficulty_descending() {
+    public List<Task> sort_by_difficulty_descending() {
         return taskRepository.sort_by_difficulty_descending();
     }
 
-    public List sort_by_created_ascending() {
+    public List<Task> sort_by_created_ascending() {
         return taskRepository.sort_by_created_ascending();
     }
 
-    public List sort_by_created_descending() {
+    public List<Task> sort_by_created_descending() {
         return taskRepository.sort_by_created_descending();
     }
 
-    public List sort_by_estimate_ascending() {
+    public List<Task> sort_by_estimate_ascending() {
         return taskRepository.sort_by_estimate_ascending();
     }
 
-    public List sort_by_estimate_descending() {
+    public List<Task> sort_by_estimate_descending() {
         return taskRepository.sort_by_estimate_descending();
     }
-
-
 
     //POST
     public void createTask(Task task) {
@@ -94,7 +83,7 @@ public class TaskService {
     }
 
     //DELETE
-    public void deleteTask(Long id) {
+    public void deleteTask(UUID id) {
         boolean exists = taskRepository.existsById(id);
         if(!exists) throw new IllegalStateException("task with id: " + id + " does not exists.");
         taskRepository.deleteById(id);
@@ -104,7 +93,7 @@ public class TaskService {
 
     //UPDATE
     @Transactional
-    public void updateToFinished(Long id) {
+    public void updateToFinished(UUID id) {
         Task task = taskRepository.findById(id).orElseThrow(() -> new IllegalStateException("task with id: " + id + " does not exists."));
         task.setStatus("finished");
         LocalDate localDate = LocalDate.now();
@@ -113,7 +102,7 @@ public class TaskService {
     }
 
     @Transactional
-    public void updateTask(Long id, String name, String priority, String difficulty, String estimate) {
+    public void updateTask(UUID id, String name, String priority, String difficulty, String estimate) {
         Task task = taskRepository.findById(id).orElseThrow(() -> new IllegalStateException("task with id: " + id + " does not exists."));
         if(name !=null && name.length() > 0 && !Objects.equals(task.getName(),name)) {
             task.setName(name);
@@ -127,8 +116,5 @@ public class TaskService {
         if(estimate !=null && estimate.length() > 0 && !Objects.equals(task.getEstimate(),estimate)) {
             task.setEstimate(estimate);
         }
-
-
     }
-
 }

@@ -1,19 +1,21 @@
 package com.example.demo.repository;
 
 import com.example.demo.model.Task;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.UUID;
 
 @Repository
-public interface TaskRepository extends JpaRepository<Task,Long> {
-    @Query(value = "select * from Task where status = 'unfinished'", nativeQuery = true)
-    List<Task> getUnfinishedTasks();
+public interface TaskRepository extends JpaRepository<Task, UUID> {
 
-    @Query(value = "select * from Task where status = 'finished'", nativeQuery = true)
-    List<Task> getFinishedTasks();
+    List<Task> findByStatus(String status);
+
+    List<Task> findByStatusOrderByCreatedDesc(String status); // new method
+
 
     @Query(value = "select * from Task where status = 'unfinished' order by id asc", nativeQuery = true)
     List<Task> sort_by_id_ascending();
@@ -44,5 +46,4 @@ public interface TaskRepository extends JpaRepository<Task,Long> {
 
     @Query(value = "select * from Task where status = 'unfinished' order by (case when estimate = 'mins' then 1 when estimate = 'hours' then 2 when estimate = 'days' then 3 when estimate = 'weeks' then 4 when estimate = 'months' then 5 when estimate = 'years' then 6 end) desc;", nativeQuery = true)
     List<Task> sort_by_estimate_descending();
-
 }

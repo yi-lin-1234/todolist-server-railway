@@ -3,8 +3,10 @@ package com.example.demo.model;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.GenericGenerator;
 
 import java.util.Date;
+import java.util.UUID;
 
 @ToString
 @Getter
@@ -16,9 +18,13 @@ import java.util.Date;
 @Table(name = "task")
 public class Task {
     @Id
-    @SequenceGenerator(name = "task_sequence", sequenceName = "task_sequence", allocationSize = 1)
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "task_sequence")
-    private Long id;
+    @GeneratedValue(generator = "UUID")
+    @GenericGenerator(
+            name = "UUID",
+            strategy = "org.hibernate.id.UUIDGenerator"
+    )
+    @Column(name = "id", updatable = false, nullable = false)
+    private UUID id;
 
     @Column(
             name = "name",
@@ -68,6 +74,6 @@ public class Task {
     @Temporal(TemporalType.DATE)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd" , locale = "en-US", timezone="America/New_York")
     private Date finished;
-    
+
 
 }
