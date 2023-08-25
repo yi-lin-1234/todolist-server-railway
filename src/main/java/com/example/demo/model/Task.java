@@ -1,21 +1,24 @@
 package com.example.demo.model;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
+
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
-@ToString
+
 @Getter
 @Setter
-@EqualsAndHashCode
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity(name = "Task")    // default will be class name, is good practice naming entity
-@Table(name = "task")
+@EqualsAndHashCode
+@Entity
+@Table(name = "tasks")
+@EntityListeners(AuditingEntityListener.class)
 public class Task {
     @Id
     @GeneratedValue(generator = "UUID")
@@ -26,54 +29,26 @@ public class Task {
     @Column(name = "id", updatable = false, nullable = false)
     private UUID id;
 
-    @Column(
-            name = "name",
-            nullable = false,
-            columnDefinition = "TEXT"
-    )
+    @Column(nullable = false)
     private String name;
 
-    @Column(
-            name = "estimate",
-            nullable = false,
-            columnDefinition = "TEXT"
-    )
+    @Column(nullable = false)
     private String estimate;
 
-    @Column(
-            name = "difficulty",
-            nullable = false,
-            columnDefinition = "TEXT"
-    )
+    @Column(nullable = false)
     private String difficulty;
 
-    @Column(
-            name = "priority",
-            nullable = false,
-            columnDefinition = "TEXT"
-    )
+    @Column(nullable = false)
     private String priority;
-    @Column(
-            name = "status",
-            nullable = false,
-            columnDefinition = "TEXT"
-    )
-    private String status;
+    @Column(nullable = false)
+    private String status = "unfinished";;
 
-    @Column(
-            name = "created",
-            nullable = false
-    )
-    @Temporal(TemporalType.DATE)
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd" , locale = "en-US", timezone="America/New_York")
-    private Date created;
-    @Column(
-            name = "finished",
-            nullable = true
-    )
-    @Temporal(TemporalType.DATE)
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd" , locale = "en-US", timezone="America/New_York")
-    private Date finished;
+    @CreatedDate
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+
+
+    private LocalDateTime finishedAt;
 
 
 }

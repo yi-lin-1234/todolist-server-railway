@@ -2,17 +2,11 @@ package com.example.demo.service;
 
 import com.example.demo.model.Task;
 import com.example.demo.repository.TaskRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.time.LocalDateTime;
+import java.util.*;
 
 @Service
 public class TaskService {
@@ -24,97 +18,84 @@ public class TaskService {
         this.taskRepository = taskRepository;
     }
 
-    //GET
-    public List<Task> getAll() {
-        return taskRepository.findAll();
+    //🔵🔵🔵🔵🔵🔵🔵🔵🔵🔵🔵🔵🔵( GET )🔵🔵🔵🔵🔵🔵🔵🔵🔵🔵🔵🔵🔵
+    public List<Task> getAllTasksByStatus(String status) {
+        return taskRepository.findByStatus(status);
     }
 
-    public List<Task> getUnfinishedTasks() {
-        return taskRepository.findByStatus("unfinished");
+    public Optional<Task> getTaskById(UUID id) {
+        return taskRepository.findById(id);
     }
 
-    public List<Task> getFinishedTasks() {
-        return taskRepository.findByStatusOrderByCreatedDesc("finished");
+    public List<Task> getUnfinishedTasksSortedByCreatedAt(String direction) {
+        if ("ASC".equalsIgnoreCase(direction)) {
+            return taskRepository.findAllUnfinishedSortedByCreatedAtAsc();
+        } else if ("DESC".equalsIgnoreCase(direction)) {
+            return taskRepository.findAllUnfinishedSortedByCreatedAtDesc();
+        } else {
+            throw new IllegalArgumentException("Invalid sort direction: " + direction);
+        }
     }
 
-    public Task getById(UUID id) {
-        return taskRepository.findById(id).orElseThrow(() -> new IllegalStateException("task with id: " + id + " does not exists."));
+    public List<Task> getUnfinishedTasksSortedByPriority(String direction) {
+        if ("ASC".equalsIgnoreCase(direction)) {
+            return taskRepository.findAllUnfinishedSortedByPriorityAsc();
+        } else if ("DESC".equalsIgnoreCase(direction)) {
+            return taskRepository.findAllUnfinishedSortedByPriorityDesc();
+        } else {
+            throw new IllegalArgumentException("Invalid sort direction: " + direction);
+        }
     }
 
-    public List<Task> sort_by_priority_ascending() {
-        return taskRepository.sort_by_priority_ascending();
+    public List<Task> getUnfinishedTasksSortedByDifficulty(String direction) {
+        if ("ASC".equalsIgnoreCase(direction)) {
+            return taskRepository.findAllUnfinishedSortedByDifficultyAsc();
+        } else if ("DESC".equalsIgnoreCase(direction)) {
+            return taskRepository.findAllUnfinishedSortedByDifficultyDesc();
+        } else {
+            throw new IllegalArgumentException("Invalid sort direction: " + direction);
+        }
     }
 
-    public List<Task> sort_by_priority_descending() {
-        return taskRepository.sort_by_priority_descending();
+    public List<Task> getUnfinishedTasksSortedByEstimate(String direction) {
+        if ("ASC".equalsIgnoreCase(direction)) {
+            return taskRepository.findAllUnfinishedSortedByEstimateAsc();
+        } else if ("DESC".equalsIgnoreCase(direction)) {
+            return taskRepository.findAllUnfinishedSortedByEstimateDesc();
+        } else {
+            throw new IllegalArgumentException("Invalid sort direction: " + direction);
+        }
     }
 
-    public List<Task> sort_by_difficulty_ascending() {
-        return taskRepository.sort_by_difficulty_ascending();
+    //🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢( POST )🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢
+    public Task createTask(Task task) {
+        return taskRepository.save(task);
     }
 
-    public List<Task> sort_by_difficulty_descending() {
-        return taskRepository.sort_by_difficulty_descending();
-    }
 
-    public List<Task> sort_by_created_ascending() {
-        return taskRepository.sort_by_created_ascending();
-    }
+    //🟡🟡🟡🟡🟡🟡🟡🟡🟡🟡🟡🟡🟡( Put )🟡🟡🟡🟡🟡🟡🟡🟡🟡🟡🟡🟡🟡
+    public Task updateTaskStatusToFinished(UUID id) {
+        if (!taskRepository.existsById(id)) {
+            throw new EntityNotFoundException("Task with ID " + id + " not found.");
+        }
 
-    public List<Task> sort_by_created_descending() {
-        return taskRepository.sort_by_created_descending();
-    }
-
-    public List<Task> sort_by_estimate_ascending() {
-        return taskRepository.sort_by_estimate_ascending();
-    }
-
-    public List<Task> sort_by_estimate_descending() {
-        return taskRepository.sort_by_estimate_descending();
-    }
-
-    //POST
-    public void createTask(Task task) {
-        task.setStatus("unfinished");
-        LocalDate localDate = LocalDate.now();
-        Date date = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
-        task.setCreated(date);
-        taskRepository.save(task);
-    }
-
-    //DELETE
-    public void deleteTask(UUID id) {
-        boolean exists = taskRepository.existsById(id);
-        if(!exists) throw new IllegalStateException("task with id: " + id + " does not exists.");
-        taskRepository.deleteById(id);
-    }
-
-    public void deleteAllTask() { taskRepository.deleteAll(); }
-
-    //UPDATE
-    @Transactional
-    public void updateToFinished(UUID id) {
-        Task task = taskRepository.findById(id).orElseThrow(() -> new IllegalStateException("task with id: " + id + " does not exists."));
+        Task task = taskRepository.findById(id).get();
         task.setStatus("finished");
-        LocalDate localDate = LocalDate.now();
-        Date date = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
-        task.setFinished(date);
+        task.setFinishedAt(LocalDateTime.now());
+        return taskRepository.save(task);
     }
 
-    @Transactional
-    public void updateTask(UUID id, String name, String priority, String difficulty, String estimate) {
-        Task task = taskRepository.findById(id).orElseThrow(() -> new IllegalStateException("task with id: " + id + " does not exists."));
-        if(name !=null && name.length() > 0 && !Objects.equals(task.getName(),name)) {
-            task.setName(name);
+    public Task updateTask(UUID id, Task updatedTask) {
+        if (!taskRepository.existsById(id)) {
+            throw new EntityNotFoundException("Task with ID " + id + " not found.");
         }
-        if(priority !=null && priority.length() > 0 && !Objects.equals(task.getPriority(),priority)) {
-            task.setPriority(priority);
-        }
-        if(difficulty !=null && difficulty.length() > 0 && !Objects.equals(task.getDifficulty(),difficulty)) {
-            task.setDifficulty(difficulty);
-        }
-        if(estimate !=null && estimate.length() > 0 && !Objects.equals(task.getEstimate(),estimate)) {
-            task.setEstimate(estimate);
-        }
+        updatedTask.setId(id);
+        return taskRepository.save(updatedTask);
+    }
+
+
+    //🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴( DELETE )🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴
+    public void deleteTaskById(UUID id) {
+        taskRepository.deleteById(id);
     }
 }
